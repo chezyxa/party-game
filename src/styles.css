@@ -814,6 +814,7 @@ button {
   font-size: 17px;
 }
 .dice-pop {
+  width: max-content;
   position: absolute;
   top: 30%;
   left: 50%;
@@ -838,6 +839,8 @@ button {
 .die {
   width: 96px;
   height: 96px;
+  flex: 0 0 auto;
+  max-width: 96px;
   border-radius: 20px;
   background: linear-gradient(135deg, #fff, #ffe7b8);
   border: 5px solid #2a1d12;
@@ -854,6 +857,7 @@ button {
   background: linear-gradient(135deg, #fff6a8, #ffcf2e);
 }
 .die.small {
+  max-width: 40px;
   width: 40px;
   height: 40px;
   font-size: 20px;

@@ -2,7 +2,7 @@ import Phaser from 'phaser';
 import { ISLAND, type Board, type BoardNode, type SpaceType } from '../../core/board';
 import { CHAR_BY_ID } from '../../core/characters';
 import type { GameState } from '../../core/types';
-import { charCanvas, coinCanvas, starCanvas } from '../art';
+import { charCanvas, coinCanvas, spriteCanvas, starCanvas } from '../art';
 import { sfx } from '../audio';
 
 const SPACE_STYLE: Record<SpaceType, { fill: number; edge: number; glyph: string; r: number }> = {
@@ -15,6 +15,15 @@ const SPACE_STYLE: Record<SpaceType, { fill: number; edge: number; glyph: string
   bank: { fill: 0x14b8a6, edge: 0x0b5e55, glyph: '🐢', r: 29 },
   shop: { fill: 0xfbbf24, edge: 0x92400e, glyph: '🛒', r: 34 },
   thief: { fill: 0x8b5a2b, edge: 0x3d220c, glyph: '🐒', r: 34 },
+};
+
+/** Спрайты для особых клеток (если загружен лист спрайтов). */
+const SPACE_SPRITE: Partial<Record<SpaceType, string>> = {
+  lucky: 'icon_clover',
+  villain: 'icon_villain',
+  bank: 'icon_bank',
+  shop: 'icon_shop',
+  thief: 'icon_thief',
 };
 
 export const SPACE_NAMES: Record<SpaceType, string> = {
@@ -35,7 +44,7 @@ export class BoardScene extends Phaser.Scene {
   private tokenNode = new Map<string, number>();
   private star!: Phaser.GameObjects.Container;
   private starPrice!: Phaser.GameObjects.Text;
-  private traps = new Map<number, Phaser.GameObjects.Text>();
+  private traps = new Map<number, Phaser.GameObjects.Text | Phaser.GameObjects.Image>();
   private arrows: Phaser.GameObjects.GameObject[] = [];
   private follow: string | null = null;
   private dragging = false;
@@ -216,7 +225,13 @@ export class BoardScene extends Phaser.Scene {
           strokeThickness: 3,
         })
         .setOrigin(0.5);
-      c.add([shadow, base, inner, txt]);
+      const spr = SPACE_SPRITE[n.type] ? this.spriteTexture(SPACE_SPRITE[n.type]!) : null;
+      if (spr) {
+        txt.setVisible(false);
+        const icon = this.add.image(0, n.passThrough ? -6 : -2, spr);
+        icon.setScale((st.r * (n.passThrough ? 2.3 : 1.9)) / 128);
+        c.add([shadow, base, inner, icon]);
+      } else c.add([shadow, base, inner, txt]);
       c.setSize(st.r * 2, st.r * 2);
       c.setInteractive({ useHandCursor: false });
       c.on('pointerover', () => this.onHoverNode?.(n));
@@ -235,8 +250,23 @@ export class BoardScene extends Phaser.Scene {
     }
   }
 
+  /** Текстура из листа спрайтов (128×128) или null. */
+  private spriteTexture(frame: string): string | null {
+    const key = 'spr_' + frame;
+    if (this.textures.exists(key)) return key;
+    const c = spriteCanvas(frame, 128);
+    if (!c) return null;
+    this.textures.addCanvas(key, c);
+    return key;
+  }
+
   private makePalmTexture() {
     if (this.textures.exists('palm')) return;
+    const sprPalm = spriteCanvas('icon_palm', 170);
+    if (sprPalm) {
+      this.textures.addCanvas('palm', sprPalm);
+      return;
+    }
     const g = this.make.graphics({ x: 0, y: 0 }, false);
     g.fillStyle(0x8b5a2b, 1);
     for (let i = 0; i < 7; i++) g.fillEllipse(60 + i * 2, 150 - i * 15, 18 - i, 16);
@@ -299,12 +329,13 @@ export class BoardScene extends Phaser.Scene {
       return Math.hypot(x - cx, y - cy) < Math.hypot(best.x - cx, best.y - cy) * 0.9;
     };
     const palms: Phaser.GameObjects.Image[] = [];
-    for (let i = 0; i < 400 && placed.length < 46; i++) {
+    for (let i = 0; i < 400 && placed.length < 34; i++) {
       const x = rnd.between(200, b.width - 200);
       const y = rnd.between(150, b.height - 150);
       if (!insideCoast(x, y) || !free(x, y, 75)) continue;
       placed.push({ x, y });
-      const img = this.add.image(x, y, 'palm').setOrigin(0.5, 0.9).setScale(rnd.realInRange(0.6, 1)).setFlipX(rnd.frac() < 0.5);
+      const k = spriteCanvas('icon_palm', 8) ? 0.62 : 1;
+      const img = this.add.image(x, y, 'palm').setOrigin(0.5, 0.9).setScale(rnd.realInRange(0.6, 1) * k).setFlipX(rnd.frac() < 0.5);
       palms.push(img);
     }
     palms.sort((a, c) => a.y - c.y).forEach((p, i) => p.setDepth(5 + i * 0.001));
@@ -497,7 +528,10 @@ export class BoardScene extends Phaser.Scene {
       const node = Number(k);
       if (this.traps.has(node)) continue;
       const p = this.nodePos(node);
-      const t = this.add.text(p.x + 22, p.y + 16, '🪤', { fontSize: '26px' }).setOrigin(0.5).setDepth(25);
+      const trapTex = this.spriteTexture('icon_trap');
+      const t = trapTex
+        ? this.add.image(p.x + 22, p.y + 16, trapTex).setScale(0.32).setDepth(25)
+        : this.add.text(p.x + 22, p.y + 16, '🪤', { fontSize: '26px' }).setOrigin(0.5).setDepth(25);
       this.traps.set(node, t);
     }
   }

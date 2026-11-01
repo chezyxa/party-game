@@ -16,7 +16,7 @@ import {
   timingScore,
   TIMING_THROWS,
 } from '../../core/minigames/skill';
-import { charUrl, EMOJI } from '../art';
+import { charUrl, EMOJI, iconHtml } from '../art';
 import { sfx } from '../audio';
 import { clear, h, sleep } from '../dom';
 import type { MgEnv, MgUI } from './types';
@@ -462,7 +462,7 @@ class SimonUI extends SkillUI {
     const seq = simonLevel(seed);
     const colors = ['#ef4444', '#3b82f6', '#22c55e', '#f59e0b'];
     const info = h('div', { class: 'mg-round' }, '');
-    const drums = colors.map((col, i) => h('button', { class: 'drum', style: `--dc:${col}` }, h('span', {}, '🥁'), h('small', {}, String(i + 1))));
+    const drums = colors.map((col, i) => h('button', { class: 'drum', style: `--dc:${col}` }, h('span', { html: iconHtml('drum', 64) }), h('small', {}, String(i + 1))));
     this.stage.append(info, h('div', { class: 'drum-row' }, drums));
     const t0 = performance.now();
     const timeLeft = () => SIMON_TIME - (performance.now() - t0) / 1000;
