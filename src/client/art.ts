@@ -12,14 +12,28 @@ interface SheetFrame {
   w: number;
   h: number;
 }
-let sheet: { img: HTMLImageElement; frames: Record<string, SheetFrame> } | null = null;
+interface Sheet {
+  img: HTMLImageElement | HTMLCanvasElement;
+  frames: Record<string, SheetFrame>;
+}
+const sheets: Sheet[] = [];
+/** Картинка острова (фон всей доски), если есть. */
+let islandImg: HTMLCanvasElement | null = null;
 
-/** Порядок картинок в сетке 6×4 (см. docs/sprites-prompt.md). */
+/** Порядок картинок в сетке 6×4 первого листа (docs/sprites-prompt.md). */
 export const GRID_NAMES = [
   ['char_kapi', 'char_tiko', 'char_kvaka', 'char_tora', 'char_kleshnya', 'char_mimi'],
   ['star', 'coin', 'icon_villain', 'icon_thief', 'icon_shop', 'icon_bank'],
   ['icon_double', 'icon_triple', 'icon_custom', 'icon_shell', 'icon_swap', 'icon_paw'],
   ['icon_trap', 'icon_chest', 'icon_clover', 'icon_palm', 'icon_volcano', 'icon_drum'],
+];
+
+/** Порядок второго листа — клетки поля и элементы интерфейса (docs/sprites-prompt-2.md). */
+export const GRID_UI = [
+  ['tile_blue', 'tile_red', 'tile_event', 'tile_lucky', 'tile_villain', 'tile_duel'],
+  ['tile_bank', 'tile_shop', 'tile_thief', 'ui_die', 'ui_trophy', 'ui_signpost'],
+  ['fruit_banana', 'fruit_mango', 'fruit_pineapple', 'fruit_rotten', 'icon_coconut', 'icon_crab'],
+  ['icon_fish', 'icon_bush', 'ui_cardback', 'icon_gem', 'ui_plank', 'ui_parchment'],
 ];
 
 async function loadImage(src: string): Promise<HTMLImageElement | null> {
@@ -33,43 +47,126 @@ async function loadImage(src: string): Promise<HTMLImageElement | null> {
   }
 }
 
-/**
- * Загружает спрайты: sprites/sheet.json + картинка, либо просто sprites/sheet.png,
- * разложенный сеткой 6×4 в порядке GRID_NAMES.
- */
-export async function loadSpriteSheet(): Promise<void> {
+async function fetchJson<T>(url: string): Promise<T | null> {
   try {
-    const res = await fetch('sprites/sheet.json', { cache: 'no-cache' });
-    if (res.ok && (res.headers.get('content-type') ?? '').includes('json')) {
-      const json = (await res.json()) as { image: string; frames: Record<string, SheetFrame> };
-      const img = await loadImage('sprites/' + json.image);
-      if (img) sheet = { img, frames: json.frames };
-      return;
-    }
+    const res = await fetch(url, { cache: 'no-cache' });
+    if (!res.ok || !(res.headers.get('content-type') ?? '').includes('json')) return null;
+    return (await res.json()) as T;
   } catch {
-    /* нет json — пробуем сетку */
+    return null;
   }
-  const img = await loadImage('sprites/sheet.png');
+}
+
+/** Лист: name.json (+ картинка из него) либо name.webp / name.png, разложенный сеткой 6×4. */
+async function loadSheet(name: string, grid: string[][]): Promise<void> {
+  const json = await fetchJson<{ image: string; frames: Record<string, SheetFrame> }>(`sprites/${name}.json`);
+  if (json) {
+    const img = await loadImage('sprites/' + json.image);
+    if (img) sheets.push({ img, frames: json.frames });
+    return;
+  }
+  const img = (await loadImage(`sprites/${name}.webp`)) ?? (await loadImage(`sprites/${name}.png`));
   if (!img) return;
   const cw = img.naturalWidth / 6;
   const ch = img.naturalHeight / 4;
   const frames: Record<string, SheetFrame> = {};
-  GRID_NAMES.forEach((row, r) => row.forEach((name, c) => (frames[name] = { x: c * cw, y: r * ch, w: cw, h: ch })));
-  sheet = { img, frames };
+  grid.forEach((row, r) => row.forEach((n, c) => (frames[n] = { x: c * cw, y: r * ch, w: cw, h: ch })));
+  sheets.push({ img, frames });
 }
 
-function drawFrame(ctx: Ctx, name: string, x: number, y: number, w: number, h: number): boolean {
-  const f = sheet?.frames[name];
-  if (!sheet || !f) return false;
+/** Остров: края плавно растворяются, чтобы не было шва с океаном вокруг. */
+async function loadIsland(): Promise<void> {
+  const img = (await loadImage('sprites/island.webp')) ?? (await loadImage('sprites/island.png')) ?? (await loadImage('sprites/island.jpg'));
+  if (!img) return;
+  const w = img.naturalWidth;
+  const hh = img.naturalHeight;
+  const c = document.createElement('canvas');
+  c.width = w;
+  c.height = hh;
+  const ctx = c.getContext('2d')!;
+  ctx.drawImage(img, 0, 0);
+  ctx.globalCompositeOperation = 'destination-in';
+  const f = Math.min(w, hh) * 0.06;
+  const gx = ctx.createLinearGradient(0, 0, w, 0);
+  gx.addColorStop(0, 'rgba(0,0,0,0)');
+  gx.addColorStop(f / w, '#000');
+  gx.addColorStop(1 - f / w, '#000');
+  gx.addColorStop(1, 'rgba(0,0,0,0)');
+  ctx.fillStyle = gx;
+  ctx.fillRect(0, 0, w, hh);
+  const gy = ctx.createLinearGradient(0, 0, 0, hh);
+  gy.addColorStop(0, 'rgba(0,0,0,0)');
+  gy.addColorStop(f / hh, '#000');
+  gy.addColorStop(1 - f / hh, '#000');
+  gy.addColorStop(1, 'rgba(0,0,0,0)');
+  ctx.fillStyle = gy;
+  ctx.fillRect(0, 0, w, hh);
+  islandImg = c;
+}
+
+export async function loadSpriteSheet(): Promise<void> {
+  await Promise.all([loadSheet('sheet', GRID_NAMES), loadSheet('ui', GRID_UI), loadIsland()]);
+  applyCssSprites();
+}
+
+export function getIsland(): HTMLCanvasElement | null {
+  return islandImg;
+}
+
+function findFrame(name: string): [Sheet, SheetFrame] | null {
+  for (const sh of sheets) if (sh.frames[name]) return [sh, sh.frames[name]];
+  return null;
+}
+
+function drawFrame(ctx: Ctx, name: string, x: number, y: number, w: number, h: number, stretch = false): boolean {
+  const hit = findFrame(name);
+  if (!hit) return false;
+  const [sh, f] = hit;
+  if (stretch) {
+    ctx.drawImage(sh.img, f.x, f.y, f.w, f.h, x, y, w, h);
+    return true;
+  }
   const k = Math.min(w / f.w, h / f.h);
   const dw = f.w * k;
   const dh = f.h * k;
-  ctx.drawImage(sheet.img, f.x, f.y, f.w, f.h, x + (w - dw) / 2, y + (h - dh) / 2, dw, dh);
+  ctx.drawImage(sh.img, f.x, f.y, f.w, f.h, x + (w - dw) / 2, y + (h - dh) / 2, dw, dh);
   return true;
 }
 
 export function hasSprite(name: string) {
-  return !!sheet?.frames[name];
+  return !!findFrame(name);
+}
+
+/** Кадр в его родных пропорциях (для фонов: доска-табличка, пергамент). */
+function frameUrl(name: string, maxSide = 512): string | null {
+  const hit = findFrame(name);
+  if (!hit) return null;
+  const f = hit[1];
+  const k = Math.min(1, maxSide / Math.max(f.w, f.h));
+  const c = document.createElement('canvas');
+  c.width = Math.round(f.w * k);
+  c.height = Math.round(f.h * k);
+  drawFrame(c.getContext('2d')!, name, 0, 0, c.width, c.height, true);
+  return c.toDataURL();
+}
+
+/** Пробрасываем спрайты интерфейса в CSS-переменные: --img-die, --img-plank и т. д. */
+function applyCssSprites() {
+  const root = document.documentElement;
+  const map: Record<string, string> = {
+    ui_die: '--img-die',
+    ui_plank: '--img-plank',
+    ui_parchment: '--img-parchment',
+    ui_cardback: '--img-cardback',
+    icon_bush: '--img-bush',
+  };
+  for (const [frame, prop] of Object.entries(map)) {
+    const url = frameUrl(frame);
+    if (url) {
+      root.style.setProperty(prop, `url("${url}")`);
+      root.classList.add('has' + prop.slice(5));
+    }
+  }
 }
 
 function canvas(size: number): [HTMLCanvasElement, Ctx] {
@@ -389,6 +486,7 @@ export const EMOJI: Record<string, string> = {
   swap: '📜',
   paw: '🐾',
   trap: '🪤',
+  trophy: '🏆',
   chest: '🧰',
   parrot: '🦜',
   volcano: '🌋',
@@ -416,7 +514,7 @@ export const EMOJI: Record<string, string> = {
 
 /** Иконка предмета/события: спрайт, если есть, иначе эмодзи. */
 /** Синонимы: какие спрайты подходят для иконок, у которых нет своей картинки. */
-const ICON_ALIAS: Record<string, string> = { parrot: 'shop', coconut: 'palm' };
+const ICON_ALIAS: Record<string, string> = { parrot: 'shop' };
 
 /** Кадр спрайта как холст (или null, если спрайтов нет). */
 export function spriteCanvas(frame: string, size: number): HTMLCanvasElement | null {
@@ -431,7 +529,7 @@ export function spriteCanvas(frame: string, size: number): HTMLCanvasElement | n
 }
 
 export function iconHtml(name: string, size = 32): string {
-  const frame = 'icon_' + (hasSprite('icon_' + name) ? name : (ICON_ALIAS[name] ?? name));
+  const frame = ['icon_' + name, 'ui_' + name, 'fruit_' + name, 'icon_' + (ICON_ALIAS[name] ?? name)].find(hasSprite) ?? '';
   const c = spriteCanvas(frame, size * 2);
   if (c) return `<img src="${c.toDataURL()}" width="${size}" height="${size}" alt="">`;
   if (name === 'star') return `<img src="${starUrl(size * 2)}" width="${size}" height="${size}" alt="">`;

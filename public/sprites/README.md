@@ -1,9 +1,8 @@
-Сюда кладутся спрайты: `sheet.png` + `sheet.json`.
-Если файлов нет, игра рисует всё процедурно.
+Спрайты игры. Чего нет — рисуется кодом.
 
-Формат `sheet.json`:
-```json
-{ "image": "sheet.png", "frames": { "char_kapi": { "x": 0, "y": 0, "w": 256, "h": 256 } } }
-```
-Имена кадров: char_kapi, char_tiko, char_kvaka, char_tora, char_kleshnya, char_mimi,
-star, coin, icon_<имя> (double, triple, custom, shell, swap, paw, trap, villain, thief, shop, bank, ...).
+- `sheet.webp` + `sheet.json` — персонажи, звезда, монета, предметы, NPC (промпт: docs/sprites-prompt.md)
+- `ui.webp` + `ui.json` — клетки поля, кубик, табличка, пергамент, фрукты, крабы и т. д. (docs/sprites-prompt-2.md)
+- `island.webp` — фон доски. Координаты клеток в `src/core/board.ts` подогнаны под эту картинку:
+  при замене острова дорожки нужно переразметить.
+
+Лист можно положить и без json — тогда он читается как ровная сетка 6×4 (порядок в `src/client/art.ts`).

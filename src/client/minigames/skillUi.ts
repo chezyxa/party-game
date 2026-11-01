@@ -16,7 +16,7 @@ import {
   timingScore,
   TIMING_THROWS,
 } from '../../core/minigames/skill';
-import { charUrl, EMOJI, iconHtml } from '../art';
+import { charUrl, EMOJI, iconHtml, spriteCanvas } from '../art';
 import { sfx } from '../audio';
 import { clear, h, sleep } from '../dom';
 import type { MgEnv, MgUI } from './types';
@@ -178,7 +178,9 @@ class CatchUI extends SkillUI {
             else sfx.splat();
             continue;
           }
-          ctx.fillText(EMOJI[f.kind], fx, y);
+          const spr = spriteCanvas('fruit_' + f.kind, 96);
+          if (spr) ctx.drawImage(spr, fx - 30, y - 42, 60, 60);
+          else ctx.fillText(EMOJI[f.kind], fx, y);
         }
         // Корзина.
         ctx.fillStyle = '#8b5a2b';
@@ -412,8 +414,16 @@ class CountUI extends SkillUI {
             const y = a.kind === 'crab' ? H * (0.5 + a.y * 0.45) : H * (0.05 + a.y * 0.38);
             ctx.save();
             ctx.translate(x * W, y);
-            if (a.kind === 'fish' && a.dir > 0) ctx.scale(-1, 1);
-            ctx.fillText(a.kind === 'crab' ? '🦀' : '🐟', 0, 12);
+            const spr = spriteCanvas(a.kind === 'crab' ? 'icon_crab' : 'icon_fish', 96);
+            if (spr) {
+              // Рыба на спрайте смотрит вправо, краб симметричен.
+              if (a.kind === 'fish' && a.dir < 0) ctx.scale(-1, 1);
+              ctx.drawImage(spr, -26, -26, 52, 52);
+            } else {
+              // Эмодзи-рыба смотрит влево.
+              if (a.kind === 'fish' && a.dir > 0) ctx.scale(-1, 1);
+              ctx.fillText(a.kind === 'crab' ? '🦀' : '🐟', 0, 12);
+            }
             ctx.restore();
           }
           ctx.textAlign = 'left';
