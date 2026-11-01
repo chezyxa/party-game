@@ -1170,7 +1170,9 @@ export class GameHost {
     const chosen = this.rng.shuffle([...defs]).slice(0, 3);
     for (const d of chosen) {
       const best = Math.max(...s.order.map((p) => d.stat(this.P(p))));
-      const winners = best > 0 ? s.order.filter((p) => d.stat(this.P(p)) === best) : [];
+      let winners = best > 0 ? s.order.filter((p) => d.stat(this.P(p)) === best) : [];
+      // Если «отличились» все сразу — звезду не получает никто.
+      if (winners.length === s.order.length && winners.length > 1) winners = [];
       for (const w of winners) this.P(w).stars++;
       const a: BonusAward = { id: d.id, name: d.name, desc: d.desc, winners };
       s.bonus.push(a);

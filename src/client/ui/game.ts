@@ -260,6 +260,7 @@ export class GameScreen {
         break;
     }
     b.syncExtras(state);
+    if (ev.type !== 'mg' && ev.type !== 'mgShow') this.mg.update(state);
     if (wait > 0) await sleep(wait);
   }
 
