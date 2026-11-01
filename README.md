@@ -78,7 +78,9 @@ tools/         симуляция партий
 
 ## Графика
 
-Сейчас всё нарисовано кодом. Промпт для генерации спрайтов лежит в [docs/sprites-prompt.md](docs/sprites-prompt.md). Готовую картинку надо положить в `public/sprites/sheet.png`.
+Спрайты лежат в `public/sprites/`. Промпты для генерации: [docs/sprites-prompt.md](docs/sprites-prompt.md) (персонажи и предметы) и [docs/sprites-prompt-2.md](docs/sprites-prompt-2.md) (остров, клетки поля, интерфейс). Чего нет, то игра рисует кодом.
+
+Шрифты: Pacifico (заголовки) и Balsamiq Sans (интерфейс) из Google Fonts.
 
 ## Деплой
 

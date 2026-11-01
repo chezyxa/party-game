@@ -102,6 +102,9 @@ const CODE: Record<string, SpaceType> = {
   T: 'thief',
 };
 
+/** Во сколько раз карта крупнее исходной разметки. */
+export const BOARD_SCALE = 1.3;
+
 function buildIsland(): Board {
   const nodes: BoardNode[] = [];
   const add = (p: Pt, code: string, route: Route): number => {
@@ -192,15 +195,21 @@ function buildIsland(): Board {
     return { x: Math.round(p.x + (dx / d) * grow), y: Math.round(p.y + (dy / d) * grow) };
   });
 
+  // Растягиваем всю карту, чтобы клетки можно было рисовать крупнее.
+  const K = BOARD_SCALE;
+  for (const n of nodes) {
+    n.x = Math.round(n.x * K);
+    n.y = Math.round(n.y * K);
+  }
   return {
     name: 'Остров Тики',
-    width: 2440,
-    height: 1640,
+    width: Math.round(2440 * K),
+    height: Math.round(1640 * K),
     nodes,
     start: main[0],
     starSpots,
-    volcano: { x: 1130, y: 790 },
-    coast,
+    volcano: { x: Math.round(1130 * K), y: Math.round(790 * K) },
+    coast: coast.map((p) => ({ x: Math.round(p.x * K), y: Math.round(p.y * K) })),
   };
 }
 

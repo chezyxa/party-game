@@ -451,7 +451,7 @@ export class GameScreen {
       h(
         'div',
         { class: 'panel final' },
-        h('h1', {}, '🏆 Победитель'),
+        h('h1', { html: `${iconHtml('trophy', 56)} Победитель` }),
         h('img', { class: 'final-winner', src: charUrl(s.players[top].charId, 256) }),
         h('h2', {}, s.players[top].name),
         h(
