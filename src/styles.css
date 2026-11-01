@@ -1597,7 +1597,7 @@ button {
   box-shadow: none;
   color: #fff8e6;
   text-shadow: 0 3px 0 #5a3416, 0 0 10px #5a3416;
-  padding: 26px 64px;
+  padding: 30px 84px 42px;
   filter: drop-shadow(0 10px 18px rgba(0, 0, 0, 0.35));
 }
 .has-parchment .event-card {

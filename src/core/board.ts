@@ -106,6 +106,12 @@ const CODE: Record<string, SpaceType> = {
 export const BOARD_SCALE = 1.3;
 
 function buildIsland(): Board {
+  // Мир доски; координаты ниже заданы в долях картинки острова (sprites/island.webp),
+  // замеренных по ней: кольцо идёт посередине пляжа, срезы — по просекам.
+  const W = Math.round(2440 * BOARD_SCALE);
+  const H = Math.round(1640 * BOARD_SCALE);
+  const P = (u: number, v: number): Pt => ({ x: Math.round(u * W), y: Math.round(v * H) });
+
   const nodes: BoardNode[] = [];
   const add = (p: Pt, code: string, route: Route): number => {
     const type = CODE[code] ?? 'blue';
@@ -114,20 +120,34 @@ function buildIsland(): Board {
     return id;
   };
 
-  // Основное кольцо по побережью (по часовой стрелке).
+  // Основное кольцо по пляжу (по часовой стрелке, старт — северо-запад).
   const ring: Pt[] = [
-    { x: 520, y: 560 },
-    { x: 760, y: 360 },
-    { x: 1100, y: 270 },
-    { x: 1450, y: 285 },
-    { x: 1790, y: 380 },
-    { x: 2010, y: 620 },
-    { x: 2020, y: 960 },
-    { x: 1810, y: 1230 },
-    { x: 1420, y: 1335 },
-    { x: 1010, y: 1325 },
-    { x: 660, y: 1225 },
-    { x: 430, y: 980 },
+    P(0.211, 0.23),
+    P(0.293, 0.169),
+    P(0.361, 0.12),
+    P(0.433, 0.105),
+    P(0.5, 0.1),
+    P(0.571, 0.088),
+    P(0.648, 0.097),
+    P(0.732, 0.132),
+    P(0.823, 0.201),
+    P(0.866, 0.28),
+    P(0.912, 0.42),
+    P(0.925, 0.537),
+    P(0.9, 0.642),
+    P(0.859, 0.731),
+    P(0.794, 0.792),
+    P(0.69, 0.828),
+    P(0.594, 0.866),
+    P(0.5, 0.853),
+    P(0.4, 0.83),
+    P(0.33, 0.812),
+    P(0.267, 0.748),
+    P(0.199, 0.691),
+    P(0.14, 0.585),
+    P(0.13, 0.48),
+    P(0.15, 0.388),
+    P(0.177, 0.306),
   ];
   const MAIN = 'BBBSBQBRBBLBQKDRBBQBRBTBBVQBLBRBBQBDBBRB';
   const mainPts = resample(densify(ring, true), MAIN.length, false);
@@ -150,24 +170,15 @@ function buildIsland(): Board {
     nodes[ids[ids.length - 1]].next.push(b);
   };
 
-  // Джунгли: короткий, но опасный срез справа.
-  branch({ x: 1790, y: 380 }, [{ x: 1700, y: 640 }], { x: 2020, y: 960 }, 'RQV', 'jungle');
-  // Тропа у вулкана: большой срез через центр острова.
-  branch({ x: 1100, y: 270 }, [{ x: 1240, y: 520 }, { x: 1440, y: 800 }, { x: 1300, y: 1080 }], { x: 1010, y: 1325 }, 'RBQVBRDV', 'volcano');
-  // Причал: длинный крюк по воде, зато удачливый.
-  branch({ x: 660, y: 1225 }, [{ x: 560, y: 1450 }, { x: 290, y: 1400 }, { x: 210, y: 1170 }], { x: 430, y: 980 }, 'BLQBLB', 'pier');
+  // Джунгли: короткий, но опасный срез справа от водопада.
+  branch(P(0.8, 0.18), [P(0.755, 0.35), P(0.75, 0.48), P(0.8, 0.6)], P(0.88, 0.69), 'RQVR', 'jungle');
+  // Тропа у вулкана: большой срез по просеке через центр острова.
+  branch(P(0.46, 0.1), [P(0.49, 0.22), P(0.56, 0.34), P(0.61, 0.47), P(0.575, 0.6), P(0.5, 0.72)], P(0.47, 0.85), 'RBQVBRDV', 'volcano');
+  // Причал: длинный крюк по воде у юго-западного берега, зато удачливый.
+  branch(P(0.27, 0.75), [P(0.18, 0.88), P(0.085, 0.865), P(0.045, 0.72)], P(0.135, 0.575), 'BLQBLB', 'pier');
 
   // Места, где может появиться звезда: ближайшая синяя клетка к якорю.
-  const anchors: Pt[] = [
-    { x: 1250, y: 260 },
-    { x: 2020, y: 800 },
-    { x: 1600, y: 1300 },
-    { x: 800, y: 1280 },
-    { x: 300, y: 1450 },
-    { x: 1400, y: 900 },
-    { x: 450, y: 800 },
-    { x: 1720, y: 640 },
-  ];
+  const anchors: Pt[] = [P(0.5, 0.1), P(0.93, 0.5), P(0.7, 0.82), P(0.32, 0.8), P(0.06, 0.8), P(0.6, 0.46), P(0.13, 0.45), P(0.75, 0.45)];
   const starSpots: number[] = [];
   for (const a of anchors) {
     let best = -1;
@@ -183,33 +194,28 @@ function buildIsland(): Board {
     if (best >= 0) starSpots.push(best);
   }
 
-  // Берег: раздутый контур кольца.
-  const cx = 1220;
-  const cy = 820;
-  const coastSrc = densify(ring, true).filter((_, i) => i % 6 === 0);
-  const coast = coastSrc.map((p) => {
-    const dx = p.x - cx;
-    const dy = p.y - cy;
-    const d = Math.hypot(dx, dy) || 1;
-    const grow = 110 + 25 * Math.sin(p.x * 0.013 + p.y * 0.007);
-    return { x: Math.round(p.x + (dx / d) * grow), y: Math.round(p.y + (dy / d) * grow) };
-  });
+  // Берег — для запасной отрисовки, если картинки острова нет.
+  const cx = W / 2;
+  const cy = H * 0.48;
+  const coast = densify(ring, true)
+    .filter((_, i) => i % 6 === 0)
+    .map((p) => {
+      const dx = p.x - cx;
+      const dy = p.y - cy;
+      const d = Math.hypot(dx, dy) || 1;
+      const grow = 90 + 25 * Math.sin(p.x * 0.01 + p.y * 0.005);
+      return { x: Math.round(p.x + (dx / d) * grow), y: Math.round(p.y + (dy / d) * grow) };
+    });
 
-  // Растягиваем всю карту, чтобы клетки можно было рисовать крупнее.
-  const K = BOARD_SCALE;
-  for (const n of nodes) {
-    n.x = Math.round(n.x * K);
-    n.y = Math.round(n.y * K);
-  }
   return {
     name: 'Остров Тики',
-    width: Math.round(2440 * K),
-    height: Math.round(1640 * K),
+    width: W,
+    height: H,
     nodes,
     start: main[0],
     starSpots,
-    volcano: { x: Math.round(1130 * K), y: Math.round(790 * K) },
-    coast: coast.map((p) => ({ x: Math.round(p.x * K), y: Math.round(p.y * K) })),
+    volcano: P(0.46, 0.43),
+    coast,
   };
 }
 

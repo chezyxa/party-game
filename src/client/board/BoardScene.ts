@@ -416,7 +416,7 @@ export class BoardScene extends Phaser.Scene {
       this.userPanUntil = this.time.now + 4000;
     });
     this.input.on('wheel', (_p: unknown, _o: unknown, _dx: number, dy: number) => {
-      const z = Phaser.Math.Clamp(cam.zoom * (dy > 0 ? 0.9 : 1.1), this.minZoom(), 1.6);
+      const z = Phaser.Math.Clamp(cam.zoom * (dy > 0 ? 0.9 : 1.1), this.minZoom(), getIsland() ? 1 : 1.6);
       cam.setZoom(z);
       this.userPanUntil = this.time.now + 4000;
     });
@@ -446,7 +446,8 @@ export class BoardScene extends Phaser.Scene {
     const t = this.tokens.get(pid);
     if (!t) return;
     const cam = this.cameras.main;
-    const z = Math.max(this.minZoom(), Math.min(1, this.scale.height / 950));
+    // С картинкой острова не приближаем сильнее ~1:1 к её пикселям, иначе мыльно.
+    const z = Math.max(this.minZoom(), Math.min(getIsland() ? 0.72 : 1, this.scale.height / (getIsland() ? 1250 : 950)));
     if (instant) {
       cam.setZoom(z);
       cam.centerOn(t.x, t.y);
