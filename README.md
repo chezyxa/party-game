@@ -80,8 +80,6 @@ tools/         симуляция партий
 
 Спрайты лежат в `public/sprites/`. Промпты для генерации: [docs/sprites-prompt.md](docs/sprites-prompt.md) (персонажи и предметы) и [docs/sprites-prompt-2.md](docs/sprites-prompt-2.md) (остров, клетки поля, интерфейс). Чего нет, то игра рисует кодом.
 
-Шрифты: Pacifico (заголовки) и Balsamiq Sans (интерфейс) из Google Fonts.
-
 ## Деплой
 
 Workflow `.github/workflows/deploy.yml` собирает игру и публикует её на GitHub Pages при пуше в `main`. В настройках репозитория выберите Settings → Pages → Source: **GitHub Actions**.

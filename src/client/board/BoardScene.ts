@@ -5,9 +5,9 @@ import type { GameState } from '../../core/types';
 import { charCanvas, coinCanvas, getIsland, spriteCanvas, starCanvas } from '../art';
 
 const K = BOARD_SCALE;
-export const UI_FONT = '"Balsamiq Sans", Rubik, sans-serif';
-export const DISPLAY_FONT = 'Pacifico, "Balsamiq Sans", cursive';
-const EMOJI_FONT = '"Balsamiq Sans", "Segoe UI Emoji", "Apple Color Emoji", sans-serif';
+export const UI_FONT = 'Rubik, sans-serif';
+export const DISPLAY_FONT = 'Rubik, sans-serif';
+const EMOJI_FONT = 'Rubik, "Segoe UI Emoji", "Apple Color Emoji", sans-serif';
 import { sfx } from '../audio';
 
 const SPACE_STYLE: Record<SpaceType, { fill: number; edge: number; glyph: string; r: number }> = {
@@ -185,7 +185,7 @@ export class BoardScene extends Phaser.Scene {
         repeat: -1,
       });
     }
-    this.add.text(v.x, v.y + 150 * K, 'Вулкан Бум-Бум', { fontFamily: DISPLAY_FONT, fontSize: '36px', color: '#fff', stroke: '#3d2a1e', strokeThickness: 8 }).setOrigin(0.5).setDepth(8);
+    this.add.text(v.x, v.y + 150 * K, 'Вулкан Бум-Бум', { fontFamily: DISPLAY_FONT, fontSize: '34px', fontStyle: 'bold', color: '#fff', stroke: '#3d2a1e', strokeThickness: 8 }).setOrigin(0.5).setDepth(8);
     this.drawPier();
   }
 
@@ -272,7 +272,7 @@ export class BoardScene extends Phaser.Scene {
   private spaceLabels(n: BoardNode, r: number) {
     if (n.id === this.board.start) {
       this.add
-        .text(n.x, n.y - r - 22, 'Старт', { fontFamily: DISPLAY_FONT, fontSize: '30px', color: '#fff', stroke: '#1d4fa8', strokeThickness: 8 })
+        .text(n.x, n.y - r - 22, 'СТАРТ', { fontFamily: DISPLAY_FONT, fontSize: '28px', fontStyle: 'bold', color: '#fff', stroke: '#1d4fa8', strokeThickness: 8 })
         .setOrigin(0.5);
     }
     if (n.passThrough || n.type === 'bank') {

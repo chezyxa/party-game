@@ -1,5 +1,4 @@
 :root {
-  --display: 'Pacifico', 'Balsamiq Sans', cursive;
   --bg: #0b4f7c;
   --panel: #fffaf0;
   --ink: #2a1d12;
@@ -23,7 +22,7 @@ body {
   margin: 0;
   height: 100%;
   overflow: hidden;
-  font-family: 'Balsamiq Sans', 'Segoe UI', system-ui, sans-serif;
+  font-family: Rubik, 'Segoe UI', system-ui, sans-serif;
   color: var(--ink);
   background: radial-gradient(circle at 30% 20%, #3cc4e8, #0b5f9a 60%, #073a5f);
 }
@@ -1530,54 +1529,6 @@ button {
   .hud-players {
     width: 200px;
   }
-}
-
-/* ---------- Шрифты-заголовки ---------- */
-.logo,
-.lobby-head h2,
-.lobby h3,
-.banner-text,
-.mg-title,
-.event-title,
-.final h1,
-.final h2,
-.modal-pop h2,
-.ask-title,
-.mg-result-text,
-.hud-top .turn,
-.char-name {
-  font-family: var(--display);
-  font-weight: 400;
-  letter-spacing: 0.3px;
-}
-.logo {
-  font-size: 72px;
-  line-height: 1.2;
-}
-.lobby h3 {
-  font-size: 22px;
-  margin: 6px 0 10px;
-}
-.ask-title {
-  font-size: 26px;
-}
-.banner-text {
-  font-size: 40px;
-  line-height: 1.3;
-}
-.hud-top .turn {
-  font-size: 22px;
-}
-.room-code {
-  font-family: 'Balsamiq Sans', sans-serif;
-}
-.die,
-.dice-total,
-.bid-val,
-.countdown,
-.pcard-stats {
-  font-family: 'Balsamiq Sans', sans-serif;
-  font-weight: 700;
 }
 
 /* ---------- Спрайты интерфейса (второй лист, если загружен) ---------- */

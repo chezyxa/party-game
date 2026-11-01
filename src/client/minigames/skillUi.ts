@@ -200,7 +200,7 @@ class CatchUI extends SkillUI {
           ctx.lineTo(x + i * 17, H - 20);
           ctx.stroke();
         }
-        ctx.font = 'bold 26px "Balsamiq Sans", sans-serif';
+        ctx.font = 'bold 26px Rubik, sans-serif';
         for (const p of pops) {
           p.life -= dt;
           p.y -= 60 * dt;
@@ -209,7 +209,7 @@ class CatchUI extends SkillUI {
         }
         ctx.textAlign = 'left';
         ctx.fillStyle = '#123';
-        ctx.font = 'bold 26px "Balsamiq Sans", sans-serif';
+        ctx.font = 'bold 26px Rubik, sans-serif';
         ctx.fillText(`Очки: ${score}`, 16, H - 430 + 30);
         ctx.textAlign = 'right';
         ctx.fillText(`⏱ ${Math.max(0, Math.ceil(CATCH_DURATION - t))}`, W - 16, 30);
@@ -292,18 +292,18 @@ class TimingUI extends SkillUI {
         ctx.fillStyle = '#ff4f4f';
         ctx.fillRect(mx - 2, by - 30, 4, 60);
         ctx.fillStyle = '#fff';
-        ctx.font = 'bold 26px "Balsamiq Sans", sans-serif';
+        ctx.font = 'bold 26px Rubik, sans-serif';
         ctx.fillText(`Бросок ${Math.min(i + 1, TIMING_THROWS)} / ${TIMING_THROWS} · Очки: ${total}`, W / 2, 40);
         if (lastScore !== null && now < pauseUntil) {
           ctx.fillStyle = lastScore >= 80 ? '#7CFC00' : lastScore > 0 ? '#ffe14d' : '#ff6b6b';
-          ctx.font = 'bold 40px "Balsamiq Sans", sans-serif';
+          ctx.font = 'bold 40px Rubik, sans-serif';
           ctx.fillText(lastScore >= 95 ? `Идеально! +${lastScore}` : `+${lastScore}`, W / 2, 250);
         } else {
           ctx.fillStyle = '#cde';
-          ctx.font = '20px "Balsamiq Sans", sans-serif';
+          ctx.font = '20px Rubik, sans-serif';
           ctx.fillText('Пробел или клик — бросить!', W / 2, 250);
         }
-        ctx.font = '20px "Balsamiq Sans", sans-serif';
+        ctx.font = '20px Rubik, sans-serif';
         ctx.fillStyle = '#9bd';
         ctx.fillText(results.join('  ·  '), W / 2, 285);
         ctx.textAlign = 'left';
