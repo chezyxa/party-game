@@ -1,4 +1,4 @@
-import { charUrl } from '../art';
+import { charUrl, iconHtml } from '../art';
 import { sfx } from '../audio';
 import { clear, h, timerBar } from '../dom';
 import type { MgEnv, MgUI } from './types';
@@ -72,7 +72,7 @@ class ChestsUI extends ChoiceUI {
       h(
         'button',
         { class: 'chest' + (v === null ? ' mystery' : ''), disabled: !clickable, onclick: () => this.pick(i) },
-        h('div', { class: 'chest-icon' }, '🧰'),
+        h('div', { class: 'chest-icon', html: iconHtml('chest', 56) }),
         h('div', { class: 'chest-val' }, v === null ? '?' : `${v} 💰`),
         h('div', { class: 'chest-who' }),
       ),
@@ -196,7 +196,7 @@ class VolcanoUI extends ChoiceUI {
       h(
         'div',
         { class: 'volcano-box' },
-        h('div', { class: 'volcano-emoji', style: `--shake:${d.risk}` }, '🌋'),
+        h('div', { class: 'volcano-emoji', style: `--shake:${d.risk}`, html: iconHtml('volcano', 120) }),
         h('div', {}, `В мешке: ${d.bag} 💎 · Спрятано: ${d.banked} 💎`),
         h(
           'div',
@@ -220,7 +220,7 @@ class VolcanoUI extends ChoiceUI {
       h(
         'div',
         { class: 'volcano-box' + (d.erupted ? ' erupted' : '') },
-        h('div', { class: 'volcano-emoji' }, d.erupted ? '💥' : '🌋'),
+        h('div', { class: 'volcano-emoji', html: d.erupted ? '💥' : iconHtml('volcano', 120) }),
         h(
           'div',
           { class: 'mg-result-text small' },

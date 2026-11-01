@@ -415,12 +415,25 @@ export const EMOJI: Record<string, string> = {
 };
 
 /** Иконка предмета/события: спрайт, если есть, иначе эмодзи. */
+/** Синонимы: какие спрайты подходят для иконок, у которых нет своей картинки. */
+const ICON_ALIAS: Record<string, string> = { parrot: 'shop', coconut: 'palm' };
+
+/** Кадр спрайта как холст (или null, если спрайтов нет). */
+export function spriteCanvas(frame: string, size: number): HTMLCanvasElement | null {
+  if (!hasSprite(frame)) return null;
+  const key = `s:${frame}:${size}`;
+  const hit = cache.get(key);
+  if (hit) return hit;
+  const [c, ctx] = canvas(size);
+  drawFrame(ctx, frame, 0, 0, size, size);
+  cache.set(key, c);
+  return c;
+}
+
 export function iconHtml(name: string, size = 32): string {
-  if (hasSprite('icon_' + name)) {
-    const [c, ctx] = canvas(size * 2);
-    drawFrame(ctx, 'icon_' + name, 0, 0, size * 2, size * 2);
-    return `<img src="${c.toDataURL()}" width="${size}" height="${size}" alt="">`;
-  }
+  const frame = 'icon_' + (hasSprite('icon_' + name) ? name : (ICON_ALIAS[name] ?? name));
+  const c = spriteCanvas(frame, size * 2);
+  if (c) return `<img src="${c.toDataURL()}" width="${size}" height="${size}" alt="">`;
   if (name === 'star') return `<img src="${starUrl(size * 2)}" width="${size}" height="${size}" alt="">`;
   if (name === 'coin') return `<img src="${coinUrl(size * 2)}" width="${size}" height="${size}" alt="">`;
   return `<span class="emoji" style="font-size:${Math.round(size * 0.85)}px">${EMOJI[name] ?? '❔'}</span>`;
