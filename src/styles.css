@@ -1572,3 +1572,13 @@ button {
   background: var(--img-bush) center / 92% 92% no-repeat, #c9f0b0;
   font-size: 0;
 }
+
+/* Неактивные кнопки-элементы мини-игр не должны выцветать: на них показывают итоги раунда. */
+.chest:disabled,
+.shell-btn:disabled,
+.bush:disabled {
+  color: inherit;
+}
+.chest.open:disabled {
+  opacity: 1;
+}
