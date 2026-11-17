@@ -1,0 +1,40 @@
+<!doctype html><html><head><meta charset="utf-8">
+<link href="https://fonts.googleapis.com/css2?family=Rubik:wght@600;800;900&display=block" rel="stylesheet">
+<style>
+*{box-sizing:border-box;margin:0}
+body{width:630px;height:500px;overflow:hidden;font-family:Rubik,sans-serif;background:#0b6fa8}
+.bg{position:absolute;inset:0;background:url(island.jpg) 52% 46%/118% auto no-repeat}
+.shade{position:absolute;inset:0;background:
+  radial-gradient(ellipse at 50% 40%,rgba(0,0,0,0) 45%,rgba(0,40,70,.45) 100%),
+  linear-gradient(180deg,rgba(0,60,100,.55) 0%,rgba(0,60,100,0) 30%,rgba(0,0,0,0) 60%,rgba(0,40,70,.75) 100%)}
+.logo{position:absolute;top:30px;left:0;right:0;text-align:center;font-weight:900;font-size:72px;letter-spacing:1px;color:#ffb534;
+  -webkit-text-stroke:7px #5a2a06;paint-order:stroke fill;text-shadow:0 7px 0 #5a2a06,0 14px 24px rgba(0,0,0,.45);transform:rotate(-3deg)}
+.logo span{color:#ff7a1a}
+.star{position:absolute;width:76px;top:4px;right:8px;transform:rotate(14deg);filter:drop-shadow(0 6px 8px rgba(0,0,0,.4))}
+.plank{position:absolute;top:142px;left:50%;transform:translateX(-50%) rotate(-1.5deg);width:470px;height:74px;
+  background:url(ui_plank.png) center/100% 100% no-repeat;display:flex;align-items:center;justify-content:center;
+  color:#fff7e3;font-weight:800;font-size:22px;text-shadow:0 2px 0 #4a2a10,0 0 8px #4a2a10;padding-bottom:4px;filter:drop-shadow(0 8px 10px rgba(0,0,0,.4))}
+.chars{position:absolute;bottom:22px;left:0;right:0;display:flex;justify-content:center}
+.chars img{width:104px;height:104px;margin:0 -6px;border-radius:50%;filter:drop-shadow(0 8px 10px rgba(0,0,0,.45))}
+.chars img:nth-child(odd){transform:translateY(-14px) rotate(-5deg)}
+.chars img:nth-child(even){transform:rotate(5deg)}
+.badge{position:absolute;bottom:140px;left:26px;background:#e5484d;color:#fff;font-weight:800;font-size:17px;padding:8px 14px;border-radius:14px;
+  border:3px solid #fff;transform:rotate(-8deg);box-shadow:0 6px 14px rgba(0,0,0,.35)}
+.badge2{position:absolute;bottom:146px;right:24px;background:#2f86d6;color:#fff;font-weight:800;font-size:17px;padding:8px 14px;border-radius:14px;
+  border:3px solid #fff;transform:rotate(7deg);box-shadow:0 6px 14px rgba(0,0,0,.35)}
+.die{position:absolute;width:62px;left:30px;top:170px;transform:rotate(-16deg);filter:drop-shadow(0 6px 8px rgba(0,0,0,.4))}
+.die b{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font-weight:900;font-size:30px;color:#4a2a10}
+.villain{position:absolute;width:80px;right:30px;top:178px;transform:rotate(10deg);filter:drop-shadow(0 6px 8px rgba(0,0,0,.4))}
+</style></head><body>
+<div class="bg"></div><div class="shade"></div>
+<div class="logo">Тики-<span>Пати</span></div>
+<img class="star" src="star.png">
+<div class="plank">Онлайн-вечеринка на острове</div>
+<div class="die"><img src="ui_die.png" style="width:100%"><b>7</b></div>
+<img class="villain" src="icon_villain.png">
+<div class="badge">2–6 игроков</div>
+<div class="badge2">10 мини-игр</div>
+<div class="chars">
+<img src="char_kapi.png"><img src="char_tiko.png"><img src="char_kvaka.png"><img src="char_tora.png"><img src="char_kleshnya.png"><img src="char_mimi.png">
+</div>
+</body></html>

@@ -29,6 +29,11 @@ jobs:
       - uses: actions/upload-pages-artifact@v3
         with:
           path: dist
+      # Сборка для itch.io: скачанный архив можно сразу загрузить как HTML-игру.
+      - uses: actions/upload-artifact@v4
+        with:
+          name: tiki-party-itch
+          path: dist
   deploy:
     needs: build
     runs-on: ubuntu-latest
@@ -38,3 +43,23 @@ jobs:
     steps:
       - id: deployment
         uses: actions/deploy-pages@v4
+
+  # Публикация на itch.io через butler. Работает, только если в репозитории заданы
+  # секрет BUTLER_API_KEY и переменная ITCH_GAME (например, chezyxa/tiki-party).
+  itch:
+    needs: build
+    runs-on: ubuntu-latest
+    if: ${{ vars.ITCH_GAME != '' }}
+    steps:
+      - uses: actions/download-artifact@v4
+        with:
+          name: tiki-party-itch
+          path: dist
+      - name: Push to itch.io
+        env:
+          BUTLER_API_KEY: ${{ secrets.BUTLER_API_KEY }}
+        run: |
+          if [ -z "$BUTLER_API_KEY" ]; then echo "Нет секрета BUTLER_API_KEY — пропускаю"; exit 0; fi
+          curl -fsSL -o butler.zip https://broth.itch.zone/butler/linux-amd64/LATEST/archive/default
+          unzip -q butler.zip -d butler && chmod +x butler/butler
+          ./butler/butler push dist "${{ vars.ITCH_GAME }}:html5" --userversion "${{ github.run_number }}"

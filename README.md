@@ -83,3 +83,16 @@ tools/         симуляция партий
 ## Деплой
 
 Workflow `.github/workflows/deploy.yml` собирает игру и публикует её на GitHub Pages при пуше в `main`. В настройках репозитория выберите Settings → Pages → Source: **GitHub Actions**.
+
+## itch.io
+
+Архив для itch: собрать `npm run build` и запаковать содержимое `dist/` в zip, так чтобы `index.html` лежал в корне архива. Готовый архив есть и в артефактах каждого запуска workflow (`tiki-party-itch`).
+
+Настройки страницы игры на itch.io:
+- Kind of project: **HTML**, у загруженного zip отметить «This file will be played in the browser»;
+- Viewport: **1280 × 720**, включить **Fullscreen button**;
+- Mobile friendly — выключить (игра рассчитана на ПК).
+
+Автопубликация: в Settings → Secrets and variables → Actions добавьте секрет `BUTLER_API_KEY` (ключ со страницы itch.io → Settings → API keys) и переменную `ITCH_GAME` вида `логин/адрес-игры`. Тогда каждый пуш в `main` заливает игру на itch через butler в канал `html5`.
+
+Внутри itch игра открывается во фрейме, поэтому кнопка в лобби копирует адрес страницы игры и код комнаты, а не ссылку `?room=`.

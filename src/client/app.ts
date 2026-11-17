@@ -334,7 +334,7 @@ export class App {
     clear(this.root);
     const me = L.players.find((p) => p.pid === this.pid);
     const online = this.code !== 'LOCAL';
-    const link = `${location.origin}${location.pathname}?room=${L.code}`;
+    const invite = inviteText(L.code);
 
     const seats = h(
       'div',
@@ -484,11 +484,9 @@ export class App {
                 'button',
                 {
                   class: 'btn small',
-                  onclick: () => {
-                    void navigator.clipboard?.writeText(link).then(() => toast('Ссылка скопирована!'));
-                  },
+                  onclick: () => copyText(invite.text, invite.done),
                 },
-                '📋 Скопировать ссылку-приглашение',
+                invite.label,
               ),
             h('button', { class: 'btn small', onclick: () => this.showMenu() }, '← Выйти'),
           ),
@@ -498,4 +496,54 @@ export class App {
       ),
     );
   }
+}
+
+/** Игра открыта внутри чужой страницы (например, во фрейме itch.io). */
+function inFrame(): boolean {
+  try {
+    return window.top !== window.self;
+  } catch {
+    return true;
+  }
+}
+
+/**
+ * Приглашение. На своём сайте — ссылка с кодом комнаты. Во фрейме (itch.io)
+ * адрес фрейма бесполезен, поэтому даём адрес страницы игры и код отдельно.
+ */
+function inviteText(code: string): { text: string; label: string; done: string } {
+  if (!inFrame()) {
+    return {
+      text: `${location.origin}${location.pathname}?room=${code}`,
+      label: '📋 Скопировать ссылку-приглашение',
+      done: 'Ссылка скопирована!',
+    };
+  }
+  const ref = document.referrer && !document.referrer.includes('itch.zone') ? document.referrer.split('?')[0] : '';
+  return {
+    text: ref ? `Заходи в Тики-Пати: ${ref} — код комнаты ${code}` : `Код комнаты в Тики-Пати: ${code}`,
+    label: '📋 Скопировать приглашение',
+    done: 'Приглашение скопировано!',
+  };
+}
+
+/** Копирование с запасным путём: во фрейме Clipboard API может быть запрещён. */
+function copyText(text: string, done: string) {
+  const fallback = () => {
+    const ta = document.createElement('textarea');
+    ta.value = text;
+    ta.style.cssText = 'position:fixed;opacity:0;left:0;top:0';
+    document.body.append(ta);
+    ta.select();
+    let ok = false;
+    try {
+      ok = document.execCommand('copy');
+    } catch {
+      ok = false;
+    }
+    ta.remove();
+    toast(ok ? done : `Не удалось скопировать. Отправьте друзьям: ${text}`, ok ? 'info' : 'error', ok ? 3500 : 12000);
+  };
+  if (navigator.clipboard?.writeText) navigator.clipboard.writeText(text).then(() => toast(done), fallback);
+  else fallback();
 }
